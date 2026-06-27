@@ -60,7 +60,7 @@ class DevicePubkeyRegister(BaseModel):
 # ─────────────────────────────────────────
 
 @router.post("/d2d/request", response_model=SessionResponse)
-def request_session(
+async def request_session(
     body: RequestSession,
     user=Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -154,7 +154,7 @@ def respond_session(
 # ─────────────────────────────────────────
 
 @router.post("/candidate/browser")
-def report_browser_candidate(
+async def report_browser_candidate(
     body: CandidateReport,
     user=Depends(get_current_user),
     db: Session = Depends(get_db)
@@ -169,7 +169,7 @@ def report_browser_candidate(
 
 
 @router.post("/candidate/device")
-def report_device_candidate(
+async def report_device_candidate(
     body: CandidateReport,
     device: Device = Depends(get_current_device),
     db: Session = Depends(get_db)
