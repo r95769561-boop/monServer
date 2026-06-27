@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MON Control Center</title>
+  <link rel="manifest" href="/app/manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#6366f1">
+  <!-- Google Font: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f0c1b 0%, #1a103c 50%, #0a0616 100%);
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.06);
+      --glass-focus: rgba(255, 255, 255, 0.12);
+      --accent-color: #6366f1; /* Neon Indigo */
+      --accent-glow: rgba(99, 102, 241, 0.4);
+      --success-color: #10b981; /* Neon Green */
+      --success-glow: rgba(16, 185, 129, 0.4);
+      --warning-color: #f59e0b; /* Neon Amber */
+      --danger-color: #ef4444; /* Neon Red */
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      padding: 20px;
+    }
+
+    /* Core container */
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      margin: 20px 0;
+      position: relative;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      background: linear-gradient(to right, #a5b4fc, #6366f1, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+      text-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
+    }
+
+    header p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    /* Glassmorphism Card Style */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      margin-bottom: 20px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .form-group input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+    }
+
+    .btn:hover {
+      background: #4f46e5;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      box-shadow: none;
+      color: var(--text-main);
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: var(--glass-focus);
+      border-color: rgba(255, 255, 255, 0.15);
+      box-shadow: none;
+    }
+
+    .btn-danger {
+      background: var(--danger-color);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+    }
+    
+    .btn-danger:hover {
+      background: #dc2626;
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+    }
+
+    /* Tabs/Views management */
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Device List Styles */
+    .device-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .device-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--accent-color);
+    }
+
+    .device-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .device-title {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .device-status {
+      display: flex;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      display: inline-block;
+    }
+
+    .status-dot.online {
+      background-color: var(--success-color);
+      box-shadow: 0 0 10px var(--success-glow);
+      animation: pulse 2s infinite;
+    }
+
+    .status-dot.offline {
+      background-color: var(--text-muted);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Active Device Interface */
+    .connection-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      margin-bottom: 20px;
+    }
+
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    /* Controller Switch UI */
+    .switch-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 0;
+      margin: 20px 0;
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.15);
+      border: 1px solid var(--glass-border);
+      position: relative;
+    }
+
+    .switch-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--text-muted);
+    }
+
+    /* Modern 3D Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 72px;
+      height: 120px;
+      display: block;
+      cursor: pointer;
+    }
+
+    .toggle-switch input {
+      display: none;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #1d1a2f;
+      border: 2px solid var(--glass-border);
+      border-radius: 36px;
+      transition: all 0.3s;
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .toggle-knob {
+      position: absolute;
+      left: 6px;
+      top: 6px;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #4f4b66, #2d2a3f);
+      border-radius: 50%;
+      transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toggle-knob::after {
+      content: '';
+      width: 14px;
+      height: 14px;
+      background: #111;
+      border-radius: 50%;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    input:checked + .toggle-slider {
+      border-color: var(--success-color);
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.5), 0 0 20px rgba(16, 185, 129, 0.15);
+    }
+
+    input:checked + .toggle-slider .toggle-knob {
+      transform: translateY(48px);
+      background: linear-gradient(135deg, #10b981, #047857);
+      box-shadow: 0 0 15px var(--success-glow);
+    }
+
+    input:checked + .toggle-slider .toggle-knob::after {
+      background: #ffffff;
+      box-shadow: 0 0 8px rgba(255,255,255,0.8);
+    }
+
+    /* Terminal Console */
+    .terminal-container {
+      margin-top: 24px;
+    }
+
+    .terminal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding: 0 4px;
+    }
+
+    .terminal-body {
+      background: #06040a;
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px;
+      height: 160px;
+      overflow-y: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: #38bdf8; /* terminal cyan */
+      line-height: 1.4;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+    }
+
+    .terminal-line {
+      margin-bottom: 6px;
+      word-break: break-all;
+    }
+
+    .terminal-line.success { color: var(--success-color); }
+    .terminal-line.warning { color: var(--warning-color); }
+    .terminal-line.danger  { color: var(--danger-color); }
+    .terminal-line.info    { color: #a78bfa; }
+
+    /* Alert modal */
+    .alert-banner {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      display: none;
+      animation: fadeIn 0.3s;
+    }
+
+    .alert-banner.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      display: block;
+    }
+    
+    .alert-banner.success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #a7f3d0;
+      display: block;
+    }
+
+    /* Sub-text actions */
+    .card-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .card-footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .card-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <header>
+      <h1>MON CONTROL CENTER</h1>
+      <p>Zero-Trust Microcontroller Overlay Network</p>
+    </header>
+
+    <div id="alertBanner" class="alert-banner"></div>
+
+    <!-- VIEW 1: AUTHENTICATION (LOGIN) -->
+    <div id="viewLogin" class="view active glass-card">
+      <form id="formLogin">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="loginUser" required placeholder="Enter username">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPass" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn">Access Terminal</button>
+      </form>
+      <div class="card-footer">
+        New controller? <a href="#" onclick="switchView('viewRegister')">Register Account</a>
+      </div>
+    </div>
+
+    <!-- VIEW 2: REGISTER -->
+    <div id="viewRegister" class="view glass-card">
+      <form id="formRegister">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="regUser" required placeholder="Pick a username">
+        </div>
+        <div class="form-group">
+          <label>Email (Optional)</label>
+          <input type="email" id="regEmail" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPass" required placeholder="Choose password">
+        </div>
+        <button type="submit" class="btn">Create Account</button>
+      </form>
+      <div class="card-footer">
+        Have an account? <a href="#" onclick="switchView('viewLogin')">Login here</a>
+      </div>
+    </div>
+
+    <!-- VIEW 3: DEVICE LIST & MANAGEMENT -->
+    <div id="viewDashboard" class="view glass-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div>
+          <span style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">Operator</span>
+          <h3 id="displayUsername" style="font-weight: 600;">Guest</h3>
+        </div>
+        <button class="btn btn-secondary" onclick="logout()" style="width: auto; padding: 6px 12px; font-size: 0.85rem; border-radius: 10px; margin: 0;">Logout</button>
+      </div>
+
+      <div style="margin-bottom: 24px;">
+        <h4 style="font-weight: 600; margin-bottom: 12px; font-size: 0.95rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Your Devices</h4>
+        <div id="deviceListEmpty" style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.9rem; background: rgba(0,0,0,0.1); border: 1px dashed var(--glass-border); border-radius: 16px;">
+          No devices registered yet. Check the provisioning instructions.
+        </div>
+        <div id="deviceListContainer"></div>
+      </div>
+
+      <!-- Quick Info on provisioning -->
+      <div style="font-size: 0.8rem; color: var(--text-muted); background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 16px; padding: 16px;">
+        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">Provisioning New Device:</b>
+        Connect your ESP32, host the setup AP, enter this server's URL, your credentials, and custom device name. It will register here automatically.
+      </div>
+    </div>
+
+    <!-- VIEW 4: DEVICE CONTROL & CRYPTO MONITOR -->
+    <div id="viewControl" class="view glass-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <a href="#" onclick="backToDashboard()" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center;">
+          <span style="font-size: 1.2rem; margin-right: 6px;">←</span> Back to Dashboard
+        </a>
+        <span id="controlDeviceID" style="font-family: 'Fira Code', monospace; font-size: 0.8rem; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 8px; border: 1px solid var(--glass-border);">esp32_0000</span>
+      </div>
+
+      <h2 id="controlDeviceName" style="font-weight: 800; font-size: 1.6rem; margin-bottom: 4px;">Smart Cooker</h2>
+      
+      <!-- Connection Status Badge -->
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <div class="connection-badge" style="margin-bottom: 0;">
+          <span id="badgeOnlineDot" class="badge-dot" style="background-color: var(--text-muted);"></span>
+          <span id="badgeOnlineText">Offline</span>
+        </div>
+        <div class="connection-badge" style="margin-bottom: 0;">
+          <span id="badgeCryptoDot" class="badge-dot" style="background: var(--danger-color); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);"></span>
+          <span id="badgeCryptoText">Cleartext Channel</span>
+        </div>
+      </div>
+
+      <!-- Action Button to Establish E2EE -->
+      <div style="margin-top: 16px;">
+        <button id="btnEstablishE2EE" class="btn" onclick="initiateE2EHandshake()">Establish E2EE Session</button>
+      </div>
+
+      <!-- Switch Container -->
+      <div class="switch-container">
+        <div class="switch-label">Relay Power Switch</div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="cookerToggle" onchange="toggleCooker(this)" disabled>
+          <span class="toggle-slider">
+            <span class="toggle-knob"></span>
+          </span>
+        </label>
+        <div id="cookerToggleStatus" style="margin-top: 14px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Switch Disabled</div>
+      </div>
+
+      <!-- Cryptographic Logs Terminal -->
+      <div class="terminal-container">
+        <div class="terminal-header">
+          <span>Cryptographic Engine Logs</span>
+          <a href="#" onclick="clearTerminal()" style="color: var(--accent-color); text-decoration: none; font-size: 0.75rem;">Clear</a>
+        </div>
+        <div id="terminal" class="terminal-body">
+          <div class="terminal-line">Terminal initialized. Standing by.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // ── STATE VARIABLES ──────────────────────────
+    let apiBase = window.location.origin; // Same origin as backend
+    if (apiBase.startsWith("file://") || apiBase.includes("localhost:3000")) {
+      apiBase = "http://localhost:8000"; // Dev fallback
+    }
+
+    let token = localStorage.getItem("mon_jwt") || "";
+    let user_id = localStorage.getItem("mon_user_id") || "";
+    let username = localStorage.getItem("mon_username") || "";
+    
+    let activeWS = null;      // Primary WS to server
+    let relayWS = null;       // Dedicated E2EE relay WS
+    
+    let devices = [];
+    let selectedDevice = null;
+
+    // Cryptographic Session Variables
+    let browserKeyPair = null;
+    let browserPubKeyBuf = null;
+    let browserPubKeyB64 = null;
+    let derivedSessionKey = null;
+    let sessionId = null;
+    let txNonceCounter = 0;
+
+    // ── INITIALIZATION ──────────────────────────
+    document.addEventListener("DOMContentLoaded", () => {
+      if (token) {
+        verifyTokenAndLoadDashboard();
+      } else {
+        switchView("viewLogin");
+      }
+
+      // Bind login / register forms
+      document.getElementById("formLogin").onsubmit = handleLogin;
+      document.getElementById("formRegister").onsubmit = handleRegister;
+
+      // Register PWA Service Worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/app/sw.js')
+          .then(reg => console.log('[PWA] Service Worker registered', reg))
+          .catch(err => console.error('[PWA] Service Worker registration failed', err));
+      }
+    });
+
+    // ── UI NAVIGATION ────────────────────────────
+    function switchView(viewId) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      document.getElementById(viewId).classList.add("active");
+      clearAlert();
+    }
+
+    function showAlert(msg, type = "error") {
+      const banner = document.getElementById("alertBanner");
+      banner.textContent = msg;
+      banner.className = `alert-banner ${type}`;
+      setTimeout(() => banner.scrollIntoView({ behavior: 'smooth' }), 50);
+    }
+
+    function clearAlert() {
+      const banner = document.getElementById("alertBanner");
+      banner.style.display = "none";
+      banner.textContent = "";
+    }
+
+    function logTerminal(message, type = "info") {
+      const term = document.getElementById("terminal");
+      const line = document.createElement("div");
+      line.className = `terminal-line ${type}`;
+      
+      const time = new Date().toLocaleTimeString();
+      line.textContent = `[${time}] ${message}`;
+      
+      term.appendChild(line);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function clearTerminal() {
+      document.getElementById("terminal").innerHTML = '<div class="terminal-line">Terminal logs cleared. Ready.</div>';
+    }
+
+    // ── AUTHENTICATION ───────────────────────────
+    async function handleLogin(e) {
+      e.preventDefault();
+      clearAlert();
+      const user = document.getElementById("loginUser").value.trim();
+      const pass = document.getElementById("loginPass").value;
+
+      try {
+        const res = await fetch(`${apiBase}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: user, password: pass })
+        });
+        
+        if (!res.ok) {
+          throw new Error("Invalid username or password");
+        }
+
+        const data = await res.json();
+        saveAuth(data.access_token, data.user_id, user);
+        verifyTokenAndLoadDashboard();
+      } catch (err) {
+        showAlert(err.message, "error");
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      clearAlert();
+      const user = document.getElementById("regUser").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const pass = document.getElementById("regPass").value;
+
+      try {
+        const res = await fetch(`${apiBase}/auth/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: user, email: email || null, password: pass })
+        });
+
+        if (!res.ok) {
+          const detail = await res.json();
+          throw new Error(detail.detail || "Registration failed");
+        }
+
+        showAlert("Account created! Logging in...", "success");
+        // Automatically login
+        const loginRes = await fetch(`${apiBase}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: user, password: pass })
+        });
+        const loginData = await loginRes.json();
+        saveAuth(loginData.access_token, loginData.user_id, user);
+        verifyTokenAndLoadDashboard();
+      } catch (err) {
+        showAlert(err.message, "error");
+      }
+    }
+
+    function saveAuth(jwt, uid, name) {
+      token = jwt;
+      user_id = uid;
+      username = name;
+      localStorage.setItem("mon_jwt", jwt);
+      localStorage.setItem("mon_user_id", uid);
+      localStorage.setItem("mon_username", name);
+    }
+
+    function logout() {
+      token = "";
+      user_id = "";
+      username = "";
+      localStorage.clear();
+      closeWebSockets();
+      switchView("viewLogin");
+    }
+
+    async function verifyTokenAndLoadDashboard() {
+      try {
+        const res = await fetch(`${apiBase}/auth/me`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+          throw new Error("Session expired");
+        }
+
+        document.getElementById("displayUsername").textContent = username;
+        switchView("viewDashboard");
+        loadDevices();
+        connectControlWebSocket();
+      } catch (err) {
+        logout();
+      }
+    }
+
+    // ── DASHBOARD & DEVICES ──────────────────────
+    async function loadDevices() {
+      try {
+        const res = await fetch(`${apiBase}/devices/`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Could not load devices");
+        
+        devices = await res.json();
+        renderDevices();
+      } catch (err) {
+        showAlert("Error loading devices: " + err.message);
+      }
+    }
+
+    function renderDevices() {
+      const container = document.getElementById("deviceListContainer");
+      const empty = document.getElementById("deviceListEmpty");
+      
+      container.innerHTML = "";
+      
+      if (devices.length === 0) {
+        empty.style.display = "block";
+        return;
+      }
+      
+      empty.style.display = "none";
+      
+      devices.forEach(d => {
+        const div = document.createElement("div");
+        div.className = "device-item";
+        div.onclick = () => selectDevice(d.device_id);
+        
+        div.innerHTML = `
+          <div class="device-info">
+            <span class="device-title">${escapeHtml(d.device_name)}</span>
+            <div class="device-status">
+              <span class="status-dot ${d.is_online ? 'online' : 'offline'}"></span>
+              ${d.is_online ? 'Online' : 'Offline'}
+            </div>
+          </div>
+          <span style="font-size: 1.2rem; color: var(--text-muted);">➔</span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function selectDevice(deviceId) {
+      selectedDevice = devices.find(d => d.device_id === deviceId);
+      if (!selectedDevice) return;
+
+      document.getElementById("controlDeviceID").textContent = selectedDevice.device_id;
+      document.getElementById("controlDeviceName").textContent = selectedDevice.device_name;
+      
+      // Default UI states
+      updateDeviceOnlineStatus(selectedDevice.is_online);
+      resetCryptoState();
+
+      switchView("viewControl");
+      clearTerminal();
+      logTerminal(`Selected device ${selectedDevice.device_name} (${selectedDevice.device_id})`);
+      
+      // Query the power state from server's cached value
+      const powerRes = selectedDevice.resources.find(r => r.id === "power");
+      const powerState = powerRes ? powerRes.last_value : false;
+      
+      // Update toggle safely without triggering trigger command
+      const toggle = document.getElementById("cookerToggle");
+      toggle.checked = !!powerState;
+      toggle.disabled = !selectedDevice.is_online;
+      
+      const statusLbl = document.getElementById("cookerToggleStatus");
+      statusLbl.textContent = selectedDevice.is_online 
+        ? (powerState ? "COOKER POWER: ON (Cached)" : "COOKER POWER: OFF (Cached)") 
+        : "Switch Disabled (Device Offline)";
+    }
+
+    function backToDashboard() {
+      // Clean up secure relay connection when leaving
+      closeRelayWebSocket();
+      resetCryptoState();
+      switchView("viewDashboard");
+      loadDevices();
+    }
+
+    function updateDeviceOnlineStatus(isOnline) {
+      const dot = document.getElementById("badgeOnlineDot");
+      const txt = document.getElementById("badgeOnlineText");
+      const toggle = document.getElementById("cookerToggle");
+
+      if (isOnline) {
+        dot.style.backgroundColor = "var(--success-color)";
+        dot.style.boxShadow = "0 0 8px var(--success-glow)";
+        txt.textContent = "Device Online";
+        toggle.disabled = false;
+        document.getElementById("btnEstablishE2EE").disabled = false;
+      } else {
+        dot.style.backgroundColor = "var(--text-muted)";
+        dot.style.boxShadow = "none";
+        txt.textContent = "Device Offline";
+        toggle.disabled = true;
+        document.getElementById("btnEstablishE2EE").disabled = true;
+        resetCryptoState();
+      }
+    }
+
+    // ── WEBSOCKETS (CONTROL & RELAY) ────────────
+    function connectControlWebSocket() {
+      closeWebSockets();
+      
+      let wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
+      let host = window.location.host;
+      if (window.location.protocol.startsWith("file://") || host.includes("localhost:3000")) {
+        host = "localhost:8000";
+      }
+
+      const wsUrl = `${wsProto}//${host}/ws/browser?token=${token}`;
+      activeWS = new WebSocket(wsUrl);
+
+      activeWS.onopen = () => {
+        console.log("[WS] Control connection established.");
+      };
+
+      activeWS.onmessage = async (event) => {
+        const msg = JSON.parse(event.data);
+        console.log("[WS] Message received:", msg);
+        
+        // Handle server pushing global events
+        if (msg.event === "device_online" && selectedDevice && msg.device_id === selectedDevice.device_id) {
+          logTerminal("Device registered online on signaling server", "success");
+          updateDeviceOnlineStatus(true);
+        } else if (msg.event === "device_offline" && selectedDevice && msg.device_id === selectedDevice.device_id) {
+          logTerminal("Device disconnected from signaling server", "danger");
+          updateDeviceOnlineStatus(false);
+        }
+
+        // Bridge to the crypto handler if a primary WS relay event is received
+        // (if browser is NOT on the dedicated relay socket)
+        if (msg.event === "relay_message" && selectedDevice && msg.session_id === sessionId) {
+          if (!relayWS || relayWS.readyState !== WebSocket.OPEN) {
+            handleIncomingRelayPayload(msg.payload);
+          }
+        }
+      };
+
+      activeWS.onerror = (e) => {
+        console.error("[WS] Control WebSocket Error", e);
+      };
+
+      activeWS.onclose = () => {
+        console.log("[WS] Control connection closed.");
+        // Try reconnect if logged in
+        if (token) setTimeout(connectControlWebSocket, 5000);
+      };
+    }
+
+    function closeWebSockets() {
+      if (activeWS) { activeWS.close(); activeWS = null; }
+      closeRelayWebSocket();
+    }
+
+    function closeRelayWebSocket() {
+      if (relayWS) { relayWS.close(); relayWS = null; }
+    }
+
+    // ── CRYPTOGRAPHY & HANDSHAKE ─────────────────
+    function resetCryptoState() {
+      browserKeyPair = null;
+      browserPubKeyBuf = null;
+      browserPubKeyB64 = null;
+      derivedSessionKey = null;
+      sessionId = null;
+      txNonceCounter = 0;
+      
+      const badgeDot = document.getElementById("badgeCryptoDot");
+      const badgeTxt = document.getElementById("badgeCryptoText");
+      
+      badgeDot.style.background = "var(--danger-color)";
+      badgeDot.style.boxShadow = "0 0 8px rgba(239, 68, 68, 0.4)";
+      badgeTxt.textContent = "Cleartext Channel";
+
+      document.getElementById("btnEstablishE2EE").style.display = "block";
+      document.getElementById("btnEstablishE2EE").textContent = "Establish E2EE Session";
+    }
+
+    async function initiateE2EHandshake() {
+      if (!selectedDevice || !selectedDevice.is_online) return;
+      
+      clearTerminal();
+      logTerminal("=== STARTING E2EE HANDSHAKE ===", "info");
+      document.getElementById("btnEstablishE2EE").disabled = true;
+      document.getElementById("btnEstablishE2EE").textContent = "Establishing...";
+
+      try {
+        // 1. Generate X25519 Ephemeral Keypair
+        logTerminal("Generating local ephemeral X25519 keypair...");
+        browserKeyPair = await generateX25519KeyPair();
+        
+        // Export public key to base64
+        browserPubKeyBuf = await window.crypto.subtle.exportKey("raw", browserKeyPair.publicKey);
+        browserPubKeyB64 = bufToBase64(browserPubKeyBuf);
+        logTerminal(`Local Ephemeral PubKey (b64): ${browserPubKeyB64}`);
+
+        // 2. Request session from server
+        logTerminal("Registering signaling session offer on server...");
+        const res = await fetch(`${apiBase}/signaling/d2d/request`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            target_device_id: selectedDevice.device_id,
+            initiator_pubkey: browserPubKeyB64
+          })
+        });
+
+        if (!res.ok) {
+          const detail = await res.json();
+          throw new Error(detail.detail || "Handshake offer failed");
+        }
+
+        const data = await res.json();
+        sessionId = data.session_id;
+        logTerminal(`Signaling Session created! ID: ${sessionId}`, "success");
+        logTerminal("Waiting for ESP32 responder handshake...");
+
+        // 3. Poll for device response (max 20 attempts, 500ms apart)
+        let attempts = 0;
+        let devicePubB64 = null;
+        
+        while (attempts < 30) {
+          attempts++;
+          await new Promise(r => setTimeout(r, 600));
+          
+          logTerminal(`Polling for responder public key (attempt ${attempts}/30)...`);
+          const pollRes = await fetch(`${apiBase}/signaling/d2d/${sessionId}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          
+          if (!pollRes.ok) continue;
+          
+          const pollData = await pollRes.json();
+          if (pollData.device_pubkey) {
+            devicePubB64 = pollData.device_pubkey;
+            logTerminal(`Device Ephemeral PubKey (b64) received: ${devicePubB64}`, "success");
+            break;
+          }
+        }
+
+        if (!devicePubB64) {
+          throw new Error("ESP32 handshake timeout. Is the device WebSocket connected?");
+        }
+
+        // 4. Derive the Shared Secret and Session Key
+        logTerminal("Deriving Shared Secret and hashing Session Key (AES-256-GCM)...");
+        derivedSessionKey = await deriveSessionKey(browserKeyPair.privateKey, devicePubB64, browserPubKeyBuf);
+        logTerminal("E2EE Session key successfully derived in Web Crypto!", "success");
+
+        // 5. Establish Relay Fallback path
+        logTerminal("Requesting WebSocket Relay Fallback bridge...");
+        const fallbackRes = await fetch(`${apiBase}/signaling/${sessionId}/fallback-relay`, {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        
+        if (!fallbackRes.ok) throw new Error("Relay fallback negotiation failed");
+        const fallbackData = await fallbackRes.json();
+        logTerminal(`Relay path opened: ${fallbackData.relay_path}`, "success");
+
+        // 6. Connect to Dedicated Relay WebSocket
+        connectRelayWebSocket(fallbackData.relay_path);
+
+      } catch (err) {
+        logTerminal(`HANDSHAKE FAILED: ${err.message}`, "danger");
+        resetCryptoState();
+        document.getElementById("btnEstablishE2EE").disabled = false;
+      }
+    }
+
+    function connectRelayWebSocket(relayPath) {
+      closeRelayWebSocket();
+      
+      let wsProto = window.location.protocol === "https:" ? "wss:" : "ws:";
+      let host = window.location.host;
+      if (window.location.protocol.startsWith("file://") || host.includes("localhost:3000")) {
+        host = "localhost:8000";
+      }
+
+      // Dedicated E2EE relay route
+      const wsUrl = `${wsProto}//${host}${relayPath}?token=${token}`;
+      logTerminal(`Connecting secure relay socket to: ${wsUrl}`);
+      
+      relayWS = new WebSocket(wsUrl);
+      
+      relayWS.onopen = () => {
+        logTerminal("Secure E2EE WebSocket Relay Bridge ACTIVE!", "success");
+        
+        // Update badge states to green/E2EE
+        const badgeDot = document.getElementById("badgeCryptoDot");
+        const badgeTxt = document.getElementById("badgeCryptoText");
+        badgeDot.style.background = "var(--success-color)";
+        badgeDot.style.boxShadow = "0 0 10px var(--success-glow)";
+        badgeTxt.textContent = "E2EE Relay Active";
+
+        document.getElementById("btnEstablishE2EE").style.display = "none";
+        
+        // Request immediate state report securely!
+        sendSecureCommand("get", "power", null);
+      };
+      
+      relayWS.onmessage = async (event) => {
+        handleIncomingRelayPayload(event.data);
+      };
+      
+      relayWS.onerror = (e) => {
+        logTerminal(`Relay WebSocket error: ${e.message}`, "danger");
+      };
+      
+      relayWS.onclose = () => {
+        logTerminal("Secure relay WebSocket closed.", "warning");
+        resetCryptoState();
+        document.getElementById("btnEstablishE2EE").disabled = false;
+      };
+    }
+
+    async function handleIncomingRelayPayload(payloadB64) {
+      if (!derivedSessionKey) return;
+      try {
+        const decryptedJson = await decryptPayload(derivedSessionKey, payloadB64);
+        logTerminal(`[E2EE DEC] ${decryptedJson}`, "success");
+        
+        const doc = JSON.parse(decryptedJson);
+        if (doc.event === "value_report" && doc.target === "power") {
+          const state = doc.value;
+          
+          const toggle = document.getElementById("cookerToggle");
+          toggle.checked = state;
+          
+          const statusLbl = document.getElementById("cookerToggleStatus");
+          statusLbl.textContent = state ? "COOKER POWER: ON (E2EE)" : "COOKER POWER: OFF (E2EE)";
+        }
+      } catch (err) {
+        logTerminal(`E2EE DECRYPTION FAILED: ${err.message}`, "danger");
+      }
+    }
+
+    // ── CONTROL ACTIONS ──────────────────────────
+    async function toggleCooker(cb) {
+      const state = cb.checked;
+      const statusLbl = document.getElementById("cookerToggleStatus");
+      
+      if (derivedSessionKey) {
+        // E2EE Mode
+        statusLbl.textContent = state ? "Sending E2EE command (ON)..." : "Sending E2EE command (OFF)...";
+        sendSecureCommand("set", "power", state);
+      } else {
+        // Unencrypted WS Mode (fallback)
+        statusLbl.textContent = state ? "Sending command (ON)..." : "Sending command (OFF)...";
+        if (activeWS && activeWS.readyState === WebSocket.OPEN) {
+          activeWS.send(JSON.stringify({
+            device_id: selectedDevice.device_id,
+            cmd: "set",
+            target: "power",
+            value: state
+          }));
+          logTerminal(`[PLAIN TX] Set power -> ${state}`);
+        } else {
+          showAlert("WebSocket disconnected, unable to send command.");
+          cb.checked = !state; // Rollback
+        }
+      }
+    }
+
+    async function sendSecureCommand(cmd, target, value) {
+      if (!derivedSessionKey || !sessionId) return;
+      
+      try {
+        const payloadObj = { cmd, target };
+        if (value !== null) payloadObj.value = value;
+        
+        const jsonText = JSON.stringify(payloadObj);
+        logTerminal(`[E2EE TX PLAIN] ${jsonText}`, "info");
+        
+        const encryptedB64 = await encryptPayload(derivedSessionKey, jsonText, txNonceCounter);
+        txNonceCounter++;
+        
+        // Send either over the relay WebSocket or control WS
+        if (relayWS && relayWS.readyState === WebSocket.OPEN) {
+          relayWS.send(encryptedB64);
+        } else if (activeWS && activeWS.readyState === WebSocket.OPEN) {
+          activeWS.send(JSON.stringify({
+            device_id: selectedDevice.device_id,
+            event: "relay_message",
+            session_id: sessionId,
+            payload: encryptedB64
+          }));
+        } else {
+          throw new Error("No open WebSocket connections available");
+        }
+        
+        logTerminal(`[E2EE TX CIPHER] Opaque base64 blob sent. Size: ${encryptedB64.length}`);
+      } catch (err) {
+        logTerminal(`Failed to send E2EE command: ${err.message}`, "danger");
+      }
+    }
+
+    // ── CRYPTO UTILS (WEB CRYPTO) ────────────────
+    function bufToBase64(buf) {
+      const bytes = new Uint8Array(buf);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return window.btoa(binary);
+    }
+
+    function base64ToBuf(b64) {
+      const binary = window.atob(b64);
+      const buf = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        buf[i] = binary.charCodeAt(i);
+      }
+      return buf.buffer;
+    }
+
+    async function generateX25519KeyPair() {
+      return await window.crypto.subtle.generateKey(
+        { name: "X25519" },
+        true,
+        ["deriveKey", "deriveBits"]
+      );
+    }
+
+    async function deriveSessionKey(privateKey, devicePubB64, browserPubBuf) {
+      const devicePubBuf = base64ToBuf(devicePubB64);
+      
+      const devicePubKey = await window.crypto.subtle.importKey(
+        "raw",
+        devicePubBuf,
+        { name: "X25519" },
+        true,
+        []
+      );
+
+      const sharedSecret = await window.crypto.subtle.deriveBits(
+        { name: "X25519", public: devicePubKey },
+        privateKey,
+        256
+      );
+
+      // SHA256(sharedSecret || "MON-P2P-v2" || device_pub || browser_pub)
+      const kdfBuf = new Uint8Array(32 + 10 + 32 + 32);
+      kdfBuf.set(new Uint8Array(sharedSecret), 0);
+      kdfBuf.set(new TextEncoder().encode("MON-P2P-v2"), 32);
+      kdfBuf.set(new Uint8Array(devicePubBuf), 42);
+      kdfBuf.set(new Uint8Array(browserPubBuf), 74);
+
+      const sessionKeyHash = await window.crypto.subtle.digest("SHA-256", kdfBuf);
+
+      return await window.crypto.subtle.importKey(
+        "raw",
+        sessionKeyHash,
+        { name: "AES-GCM" },
+        false,
+        ["encrypt", "decrypt"]
+      );
+    }
+
+    async function encryptPayload(aesKey, jsonText, counter) {
+      const plainBytes = new TextEncoder().encode(jsonText);
+      
+      const nonce = new Uint8Array(12);
+      const view = new DataView(nonce.buffer);
+      view.setUint32(0, counter, true);
+      
+      const ciphertext = await window.crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: nonce, tagLength: 128 },
+        aesKey,
+        plainBytes
+      );
+
+      const packed = new Uint8Array(12 + ciphertext.byteLength);
+      packed.set(nonce, 0);
+      packed.set(new Uint8Array(ciphertext), 12);
+      
+      return bufToBase64(packed.buffer);
+    }
+
+    async function decryptPayload(aesKey, payloadB64) {
+      const packed = new Uint8Array(base64ToBuf(payloadB64));
+      if (packed.length < 12 + 16) throw new Error("Ciphertext too short");
+
+      const nonce = packed.slice(0, 12);
+      const cipherAndTag = packed.slice(12);
+
+      const decrypted = await window.crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: nonce, tagLength: 128 },
+        aesKey,
+        cipherAndTag
+      );
+
+      return new TextDecoder().decode(decrypted);
+    }
+
+    // ── GENERAL UTILS ────────────────────────────
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>
