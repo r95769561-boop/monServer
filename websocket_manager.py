@@ -38,9 +38,14 @@ class ConnectionManager:
             "timestamp": datetime.utcnow().isoformat()
         })
 
-    def disconnect_device(self, device_id: str):
+    async def disconnect_device(self, device_id: str):
         self.devices.pop(device_id, None)
         self._mark_online(device_id, False)
+        await self.broadcast_to_user_by_device(device_id, {
+            "event": "device_offline",
+            "device_id": device_id,
+            "timestamp": datetime.utcnow().isoformat()
+        })
 
     async def connect_browser(self, user_id: str, ws: WebSocket):
         await ws.accept()
@@ -139,7 +144,7 @@ async def device_ws(websocket: WebSocket, device_id: str, token: str = Query(...
                 _update_resource_value(device_id, message.get("target"), message.get("value"))
 
     except WebSocketDisconnect:
-        manager.disconnect_device(device_id)
+        await manager.disconnect_device(device_id)
 
 
 @router.websocket("/browser")

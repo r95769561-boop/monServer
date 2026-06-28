@@ -618,6 +618,7 @@
     let derivedSessionKey = null;
     let sessionId = null;
     let txNonceCounter = 0;
+    let toggleTimeoutId = null; // Confirmation timeout for toggle switch
 
     // ── INITIALIZATION ──────────────────────────
     document.addEventListener("DOMContentLoaded", () => {
@@ -906,6 +907,25 @@
         } else if (msg.event === "device_offline" && selectedDevice && msg.device_id === selectedDevice.device_id) {
           logTerminal("Device disconnected from signaling server", "danger");
           updateDeviceOnlineStatus(false);
+        } else if (msg.event === "value_report" && selectedDevice && msg.target === "power") {
+          const state = msg.value;
+          const errorMsg = msg.error || "";
+          
+          clearTimeout(toggleTimeoutId);
+          
+          const toggle = document.getElementById("cookerToggle");
+          toggle.disabled = false;
+          toggle.checked = state;
+          
+          const statusLbl = document.getElementById("cookerToggleStatus");
+          if (errorMsg) {
+            statusLbl.textContent = `Unable to work: ${errorMsg}`;
+            statusLbl.style.color = "var(--danger-color)";
+            showAlert(`Unable to turn on: ${errorMsg}`);
+          } else {
+            statusLbl.textContent = state ? "COOKER POWER: ON (PLAIN)" : "COOKER POWER: OFF (PLAIN)";
+            statusLbl.style.color = state ? "var(--success-color)" : "var(--text-muted)";
+          }
         }
 
         // Bridge to the crypto handler if a primary WS relay event is received
@@ -1107,12 +1127,23 @@
         const doc = JSON.parse(decryptedJson);
         if (doc.event === "value_report" && doc.target === "power") {
           const state = doc.value;
+          const errorMsg = doc.error || "";
+          
+          clearTimeout(toggleTimeoutId);
           
           const toggle = document.getElementById("cookerToggle");
+          toggle.disabled = false;
           toggle.checked = state;
           
           const statusLbl = document.getElementById("cookerToggleStatus");
-          statusLbl.textContent = state ? "COOKER POWER: ON (E2EE)" : "COOKER POWER: OFF (E2EE)";
+          if (errorMsg) {
+            statusLbl.textContent = `Unable to work: ${errorMsg}`;
+            statusLbl.style.color = "var(--danger-color)";
+            showAlert(`Unable to turn on: ${errorMsg}`);
+          } else {
+            statusLbl.textContent = state ? "COOKER POWER: ON (E2EE)" : "COOKER POWER: OFF (E2EE)";
+            statusLbl.style.color = state ? "var(--success-color)" : "var(--text-muted)";
+          }
         }
       } catch (err) {
         logTerminal(`E2EE DECRYPTION FAILED: ${err.message}`, "danger");
@@ -1121,27 +1152,43 @@
 
     // ── CONTROL ACTIONS ──────────────────────────
     async function toggleCooker(cb) {
-      const state = cb.checked;
+      const attemptedState = cb.checked;
+      // Visually revert it immediately until confirmed by device report
+      cb.checked = !attemptedState;
+      cb.disabled = true; // Disable until feedback or timeout
+      
       const statusLbl = document.getElementById("cookerToggleStatus");
+      statusLbl.textContent = attemptedState ? "Requesting power ON..." : "Requesting power OFF...";
+      statusLbl.style.color = "var(--warning-color)";
+      
+      // Start confirmation timeout
+      clearTimeout(toggleTimeoutId);
+      toggleTimeoutId = setTimeout(() => {
+        cb.disabled = false;
+        statusLbl.textContent = "Unable to turn on: Timeout";
+        statusLbl.style.color = "var(--danger-color)";
+        showAlert("Unable to turn on: Connection timed out.");
+      }, 5000);
       
       if (derivedSessionKey) {
         // E2EE Mode
-        statusLbl.textContent = state ? "Sending E2EE command (ON)..." : "Sending E2EE command (OFF)...";
-        sendSecureCommand("set", "power", state);
+        sendSecureCommand("set", "power", attemptedState);
       } else {
         // Unencrypted WS Mode (fallback)
-        statusLbl.textContent = state ? "Sending command (ON)..." : "Sending command (OFF)...";
         if (activeWS && activeWS.readyState === WebSocket.OPEN) {
           activeWS.send(JSON.stringify({
             device_id: selectedDevice.device_id,
             cmd: "set",
             target: "power",
-            value: state
+            value: attemptedState
           }));
-          logTerminal(`[PLAIN TX] Set power -> ${state}`);
+          logTerminal(`[PLAIN TX] Set power -> ${attemptedState}`);
         } else {
+          clearTimeout(toggleTimeoutId);
+          cb.disabled = false;
+          statusLbl.textContent = "Switch Disabled (WS Disconnected)";
+          statusLbl.style.color = "var(--text-muted)";
           showAlert("WebSocket disconnected, unable to send command.");
-          cb.checked = !state; // Rollback
         }
       }
     }
