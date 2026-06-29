@@ -649,6 +649,7 @@
 
     function showAlert(msg, type = "error") {
       const banner = document.getElementById("alertBanner");
+      banner.style.display = "block";
       banner.textContent = msg;
       banner.className = `alert-banner ${type}`;
       setTimeout(() => banner.scrollIntoView({ behavior: 'smooth' }), 50);
@@ -910,10 +911,12 @@
         } else if (msg.event === "value_report" && selectedDevice && msg.target === "power") {
           const state = msg.value;
           const errorMsg = msg.error || "";
-          
-          clearTimeout(toggleTimeoutId);
+          const isFinished = msg.finished || false;
           
           const toggle = document.getElementById("cookerToggle");
+          const wasChecked = toggle.checked;
+          
+          clearTimeout(toggleTimeoutId);
           toggle.disabled = false;
           toggle.checked = state;
           
@@ -921,10 +924,21 @@
           if (errorMsg) {
             statusLbl.textContent = `Unable to work: ${errorMsg}`;
             statusLbl.style.color = "var(--danger-color)";
-            showAlert(`Unable to turn on: ${errorMsg}`);
+            showAlert(`Unable to work: ${errorMsg}`, "error");
+            alert(`Unable to work: ${errorMsg}`);
+          } else if (isFinished) {
+            statusLbl.textContent = "COOKER POWER: OFF (Finished)";
+            statusLbl.style.color = "var(--success-color)";
+            showAlert("Cooking is finished!", "success");
+            alert("Cooking is finished!");
           } else {
             statusLbl.textContent = state ? "COOKER POWER: ON (PLAIN)" : "COOKER POWER: OFF (PLAIN)";
             statusLbl.style.color = state ? "var(--success-color)" : "var(--text-muted)";
+            
+            if (state && !wasChecked) {
+              showAlert("Cooker has started!", "success");
+              alert("Cooker has started!");
+            }
           }
         }
 
@@ -1128,10 +1142,12 @@
         if (doc.event === "value_report" && doc.target === "power") {
           const state = doc.value;
           const errorMsg = doc.error || "";
-          
-          clearTimeout(toggleTimeoutId);
+          const isFinished = doc.finished || false;
           
           const toggle = document.getElementById("cookerToggle");
+          const wasChecked = toggle.checked;
+          
+          clearTimeout(toggleTimeoutId);
           toggle.disabled = false;
           toggle.checked = state;
           
@@ -1139,10 +1155,21 @@
           if (errorMsg) {
             statusLbl.textContent = `Unable to work: ${errorMsg}`;
             statusLbl.style.color = "var(--danger-color)";
-            showAlert(`Unable to turn on: ${errorMsg}`);
+            showAlert(`Unable to work: ${errorMsg}`, "error");
+            alert(`Unable to work: ${errorMsg}`);
+          } else if (isFinished) {
+            statusLbl.textContent = "COOKER POWER: OFF (Finished)";
+            statusLbl.style.color = "var(--success-color)";
+            showAlert("Cooking is finished!", "success");
+            alert("Cooking is finished!");
           } else {
             statusLbl.textContent = state ? "COOKER POWER: ON (E2EE)" : "COOKER POWER: OFF (E2EE)";
             statusLbl.style.color = state ? "var(--success-color)" : "var(--text-muted)";
+            
+            if (state && !wasChecked) {
+              showAlert("Cooker has started!", "success");
+              alert("Cooker has started!");
+            }
           }
         }
       } catch (err) {
