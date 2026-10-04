@@ -27,7 +27,14 @@ if DATABASE_URL.startswith("postgres://"):
 
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 
-engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
+try:
+    engine = create_engine(DATABASE_URL, connect_args=connect_args, pool_pre_ping=True)
+except Exception as e:
+    print(f"[DB Warning] Could not connect to {DATABASE_URL}: {e}. Falling back to SQLite.")
+    DATABASE_URL = "sqlite:///./mon.db"
+    connect_args = {"check_same_thread": False}
+    engine = create_engine(DATABASE_URL, connect_args=connect_args)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -134,5 +141,13 @@ class SignalingSession(Base):
     device = relationship("Device", back_populates="sessions")
 
 
-# Create all tables
-Base.metadata.create_all(bind=engine)
+# Create all tables safely with fallback
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"[DB Warning] Table creation failed on primary DB ({e}). Falling back to local SQLite.")
+    DATABASE_URL = "sqlite:///./mon.db"
+    connect_args = {"check_same_thread": False}
+    engine = create_engine(DATABASE_URL, connect_args=connect_args)
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    Base.metadata.create_all(bind=engine)
