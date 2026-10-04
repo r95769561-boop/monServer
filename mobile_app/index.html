@@ -580,41 +580,85 @@
         <div id="cookerToggleStatus" style="margin-top: 14px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Switch Disabled</div>
       </div>
 
-      <!-- Current Sensor & Mains Power Telemetry -->
+      <!-- Current, Power, Energy & Rice Cooker Telemetry -->
       <div class="telemetry-card" style="margin: 16px 0; padding: 20px; border-radius: 16px; background: rgba(0, 0, 0, 0.25); border: 1px solid var(--glass-border);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-          <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Current & Power Feedback</span>
+          <span style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;">Smart Cooker Telemetry</span>
           <span id="mainsBadge" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; font-weight: 600; background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--glass-border);">Standby (Off)</span>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
-          <!-- Current Reading -->
+          <!-- 1. Load Current -->
           <div style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center;">
             <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Load Current</div>
-            <div style="font-family: 'Fira Code', monospace; font-size: 1.8rem; font-weight: 700; color: #38bdf8;">
-              <span id="currentReadout">0.00</span> <span style="font-size: 1rem; color: var(--text-muted);">A</span>
+            <div style="font-family: 'Fira Code', monospace; font-size: 1.7rem; font-weight: 700; color: #38bdf8;">
+              <span id="currentReadout">0.00</span> <span style="font-size: 0.95rem; color: var(--text-muted);">A</span>
             </div>
             <div id="currentDetail" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">No current (0.00 A)</div>
           </div>
 
-          <!-- Power Source -->
+          <!-- 2. Active Power Consumption -->
+          <div style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center;">
+            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Power Consumed</div>
+            <div style="font-family: 'Fira Code', monospace; font-size: 1.7rem; font-weight: 700; color: #a78bfa;">
+              <span id="powerReadout">0.0</span> <span style="font-size: 0.95rem; color: var(--text-muted);">W</span>
+            </div>
+            <div id="energyReadout" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Energy: 0.00 Wh</div>
+          </div>
+
+          <!-- 3. Power Source -->
           <div style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center;">
             <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Power Source</div>
-            <div id="powerSourceTitle" style="font-size: 1.05rem; font-weight: 700; color: var(--text-muted); margin-top: 6px;">
+            <div id="powerSourceTitle" style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted); margin-top: 6px;">
               STANDBY
             </div>
-            <div id="powerSourceNote" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 6px;">ESP32 on Battery</div>
+            <div id="powerSourceNote" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">AC / Battery Monitor</div>
+          </div>
+
+          <!-- 4. Cooker Status -->
+          <div style="background: rgba(255, 255, 255, 0.03); padding: 14px; border-radius: 12px; border: 1px solid var(--glass-border); text-align: center;">
+            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Cooker Status</div>
+            <div id="cookStateTitle" style="font-size: 0.95rem; font-weight: 700; color: var(--text-muted); margin-top: 6px;">
+              STANDBY
+            </div>
+            <div id="cookStateNote" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 4px;">Ready to cook</div>
           </div>
         </div>
 
-        <!-- Mains Power Lost / Warning Box -->
-        <div id="mainsPowerAlertBox" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 14px; margin-top: 8px;">
+        <!-- Rice Cooked Celebration Banner (Green) -->
+        <div id="riceCookedAlertBox" style="display: none; background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 12px; padding: 14px; margin-top: 8px;">
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span style="font-size: 1.6rem;">🍚</span>
+            <div>
+              <div style="font-weight: 700; font-size: 0.95rem; color: #a7f3d0;">RICE IS COOKED!</div>
+              <div id="riceCookedMsgText" style="font-size: 0.8rem; color: #d1fae5; margin-top: 2px; line-height: 1.4;">
+                The rice cooker has completed its cooking cycle and automatically switched to keep-warm / off mode. Heating element turned off.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cooker Fault / Disconnected Warning Box (Amber) -->
+        <div id="cookerFaultAlertBox" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); border-radius: 12px; padding: 14px; margin-top: 8px;">
           <div style="display: flex; align-items: flex-start; gap: 10px;">
             <span style="font-size: 1.5rem;">⚠️</span>
             <div>
-              <div style="font-weight: 700; font-size: 0.9rem; color: #fca5a5;">POWER IS OFF (Mains Disconnected)</div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: #fde68a;">COOKER FAULT / DISCONNECTED</div>
+              <div id="cookerFaultMsgText" style="font-size: 0.8rem; color: #fef3c7; margin-top: 2px; line-height: 1.4;">
+                AC power is ON from the converter, but the rice cooker is drawing 0 Watts before cooking. Check cooker plug, lid, or internal switch.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mains Power Lost / Warning Box (Red) -->
+        <div id="mainsPowerAlertBox" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 12px; padding: 14px; margin-top: 8px;">
+          <div style="display: flex; align-items: flex-start; gap: 10px;">
+            <span style="font-size: 1.5rem;">⚡</span>
+            <div>
+              <div style="font-weight: 700; font-size: 0.9rem; color: #fca5a5;">AC MAINS POWER IS OFF</div>
               <div id="mainsAlertMsgText" style="font-size: 0.8rem; color: #fecaca; margin-top: 2px; line-height: 1.4;">
-                Switch was set to ON, but no electrical current was detected by the sensor. The main power supply is OFF or disconnected. (The ESP32 is powered separately by battery backup).
+                AC power supply is disconnected or tripped. The ESP32 is running on separate backup battery power.
               </div>
             </div>
           </div>
@@ -863,14 +907,19 @@
     }
 
     // ── CURRENT SENSOR & MAINS FEEDBACK HELPERS ──
+    // ── CURRENT, POWER & COOKER STATUS HELPERS ──
     function updateCurrentUI(amps) {
       const readout = document.getElementById("currentReadout");
       const detail = document.getElementById("currentDetail");
-      if (readout) readout.textContent = Number(amps).toFixed(2);
+      const numAmps = Number(amps) || 0;
+      if (readout) readout.textContent = numAmps.toFixed(2);
       if (detail) {
-        if (amps >= 0.05) {
-          detail.textContent = "Load Active (Drawing current)";
+        if (numAmps >= 0.40) {
+          detail.textContent = "Cooking Active (Heater ON)";
           detail.style.color = "var(--success-color)";
+        } else if (numAmps >= 0.05) {
+          detail.textContent = "Keep-Warm / Low Load";
+          detail.style.color = "#38bdf8";
         } else {
           detail.textContent = "No current (0.00 A)";
           detail.style.color = "var(--text-muted)";
@@ -878,46 +927,110 @@
       }
     }
 
-    function showMainsOffWarning(errorMsg) {
-      const alertBox = document.getElementById("mainsPowerAlertBox");
-      if (alertBox) {
-        alertBox.style.display = "block";
-        const msgEl = document.getElementById("mainsAlertMsgText");
-        if (msgEl && errorMsg) msgEl.textContent = errorMsg;
+    function updatePowerMetrics(watts, energyWh) {
+      const pEl = document.getElementById("powerReadout");
+      const eEl = document.getElementById("energyReadout");
+      if (watts !== null && watts !== undefined && pEl) {
+        pEl.textContent = Number(watts).toFixed(1);
       }
-
-      const mainsBadge = document.getElementById("mainsBadge");
-      if (mainsBadge) {
-        mainsBadge.textContent = "Mains OFF (Battery)";
-        mainsBadge.style.background = "rgba(239, 68, 68, 0.2)";
-        mainsBadge.style.color = "#fca5a5";
-        mainsBadge.style.border = "1px solid rgba(239, 68, 68, 0.4)";
+      if (energyWh !== null && energyWh !== undefined && eEl) {
+        const numWh = Number(energyWh);
+        if (numWh >= 1000) {
+          eEl.textContent = `Energy: ${(numWh / 1000).toFixed(2)} kWh`;
+        } else {
+          eEl.textContent = `Energy: ${numWh.toFixed(1)} Wh`;
+        }
       }
+    }
 
+    function updateCookerStatus(cookState, powerSource, errorMsg) {
+      const cTitle = document.getElementById("cookStateTitle");
+      const cNote = document.getElementById("cookStateNote");
       const pTitle = document.getElementById("powerSourceTitle");
-      if (pTitle) {
-        pTitle.textContent = "BATTERY ONLY";
-        pTitle.style.color = "var(--danger-color)";
-      }
       const pNote = document.getElementById("powerSourceNote");
-      if (pNote) pNote.textContent = "Mains Disconnected";
+      const mainsBadge = document.getElementById("mainsBadge");
+      const statusLbl = document.getElementById("cookerToggleStatus");
+      const cookedBox = document.getElementById("riceCookedAlertBox");
+      const faultBox = document.getElementById("cookerFaultAlertBox");
+      const mainsBox = document.getElementById("mainsPowerAlertBox");
 
+      // Reset alert boxes first
+      if (cookedBox) cookedBox.style.display = "none";
+      if (faultBox)  faultBox.style.display  = "none";
+      if (mainsBox)  mainsBox.style.display  = "none";
+
+      // 1. Power Source Handling (AC-to-DC Converter vs. Battery Backup)
+      if (powerSource === "AC_DC_CONVERTER") {
+        if (pTitle) { pTitle.textContent = "AC CONVERTER"; pTitle.style.color = "var(--success-color)"; }
+        if (pNote)  { pNote.textContent  = "Mains Power Active"; }
+        if (mainsBadge) {
+          mainsBadge.textContent = "Mains Active";
+          mainsBadge.style.background = "rgba(16, 185, 129, 0.2)";
+          mainsBadge.style.color = "#a7f3d0";
+          mainsBadge.style.border = "1px solid rgba(16, 185, 129, 0.4)";
+        }
+      } else if (powerSource === "BATTERY_BACKUP") {
+        if (pTitle) { pTitle.textContent = "BATTERY ONLY"; pTitle.style.color = "var(--danger-color)"; }
+        if (pNote)  { pNote.textContent  = "Mains Supply Disconnected"; }
+        if (mainsBadge) {
+          mainsBadge.textContent = "Mains OFF (Battery)";
+          mainsBadge.style.background = "rgba(239, 68, 68, 0.2)";
+          mainsBadge.style.color = "#fca5a5";
+          mainsBadge.style.border = "1px solid rgba(239, 68, 68, 0.4)";
+        }
+      }
+
+      // 2. Cooker State Handling (Cooking, Rice Cooked, Fault, Mains Lost)
+      if (cookState === "COOKING") {
+        if (cTitle) { cTitle.textContent = "COOKING ♨️"; cTitle.style.color = "var(--success-color)"; }
+        if (cNote)  { cNote.textContent  = "High-Power Heating Coil"; }
+        if (statusLbl) { statusLbl.textContent = "COOKER POWER: ON (Cooking ♨️)"; statusLbl.style.color = "var(--success-color)"; }
+      }
+      else if (cookState === "COOKED") {
+        if (cTitle) { cTitle.textContent = "RICE COOKED 🍚"; cTitle.style.color = "#34d399"; }
+        if (cNote)  { cNote.textContent  = "Auto Keep-Warm / Off"; }
+        if (cookedBox) cookedBox.style.display = "block";
+        if (statusLbl) { statusLbl.textContent = "🍚 RICE IS COOKED! (Auto-Switched Off)"; statusLbl.style.color = "#34d399"; }
+        logTerminal("[COOKER ALERT] 🍚 Rice is COOKED! Rice cooker auto-switched off heating element.", "success");
+        showAlert("🍚 RICE IS COOKED! The rice cooker has completed cooking and automatically switched to keep-warm.", "success");
+      }
+      else if (cookState === "FAULT") {
+        if (cTitle) { cTitle.textContent = "FAULT / CHECK ⚠️"; cTitle.style.color = "var(--warning-color)"; }
+        if (cNote)  { cNote.textContent  = "Drawing 0 Watts"; }
+        if (faultBox) {
+          faultBox.style.display = "block";
+          if (errorMsg) document.getElementById("cookerFaultMsgText").textContent = errorMsg;
+        }
+        if (statusLbl) { statusLbl.textContent = "⚠️ COOKER NOT WORKING OR UNPLUGGED"; statusLbl.style.color = "var(--warning-color)"; }
+        logTerminal(`[COOKER FAULT] ${errorMsg || "Cooker drawing 0 Watts with AC converter live."}`, "warning");
+        showAlert("⚠️ Cooker not working or unplugged! AC power is ON, but drawing 0 Watts.", "error");
+      }
+      else if (cookState === "MAINS_LOST") {
+        if (cTitle) { cTitle.textContent = "MAINS LOST ⚡"; cTitle.style.color = "var(--danger-color)"; }
+        if (cNote)  { cNote.textContent  = "AC Outage Detected"; }
+        if (mainsBox) {
+          mainsBox.style.display = "block";
+          if (errorMsg) document.getElementById("mainsAlertMsgText").textContent = errorMsg;
+        }
+        if (statusLbl) { statusLbl.textContent = "⚠️ POWER IS OFF: Mains supply disconnected"; statusLbl.style.color = "var(--danger-color)"; }
+        logTerminal(`[MAINS ALERT] ${errorMsg || "AC supply lost, ESP32 on battery backup."}`, "danger");
+        showAlert("⚠️ POWER IS OFF: Mains supply disconnected. ESP32 running on backup battery.", "error");
+      }
+      else {
+        // STANDBY
+        if (cTitle) { cTitle.textContent = "STANDBY"; cTitle.style.color = "var(--text-muted)"; }
+        if (cNote)  { cNote.textContent  = "Cooker Switched Off"; }
+      }
+    }
+
+    function showMainsOffWarning(errorMsg) {
+      updateCookerStatus("MAINS_LOST", "BATTERY_BACKUP", errorMsg);
       const toggle = document.getElementById("cookerToggle");
       if (toggle) {
         toggle.checked = false;
         toggle.disabled = false;
       }
       clearTimeout(toggleTimeoutId);
-
-      const statusLbl = document.getElementById("cookerToggleStatus");
-      if (statusLbl) {
-        statusLbl.textContent = "⚠️ POWER IS OFF: Mains supply disconnected";
-        statusLbl.style.color = "var(--danger-color)";
-      }
-
-      logTerminal(`[FEEDBACK ALERT] ${errorMsg}`, "danger");
-      showAlert(`⚠️ POWER IS OFF: Switch is ON, but no current was detected! Main power supply is disconnected or turned off. (ESP32 is running on battery backup).`, "error");
-      alert(`⚠️ POWER IS OFF!\n\nThe switch was commanded ON, but NO electrical current was detected by the sensor.\n\nThe main power supply to the appliance is OFF or disconnected.\n(The ESP32 is powered separately by battery backup).`);
     }
 
     function hideMainsOffWarning() {
@@ -926,97 +1039,79 @@
     }
 
     function setMainsPowerState(isActive) {
-      const mainsBadge = document.getElementById("mainsBadge");
-      const pTitle = document.getElementById("powerSourceTitle");
-      const pNote = document.getElementById("powerSourceNote");
-
-      if (isActive) {
-        if (mainsBadge) {
-          mainsBadge.textContent = "Mains Active";
-          mainsBadge.style.background = "rgba(16, 185, 129, 0.2)";
-          mainsBadge.style.color = "#a7f3d0";
-          mainsBadge.style.border = "1px solid rgba(16, 185, 129, 0.4)";
-        }
-        if (pTitle) {
-          pTitle.textContent = "MAINS ACTIVE";
-          pTitle.style.color = "var(--success-color)";
-        }
-        if (pNote) pNote.textContent = "AC/DC Supply + Battery Standby";
-      } else {
-        if (mainsBadge) {
-          mainsBadge.textContent = "Standby (Off)";
-          mainsBadge.style.background = "rgba(255, 255, 255, 0.05)";
-          mainsBadge.style.color = "var(--text-muted)";
-          mainsBadge.style.border = "1px solid var(--glass-border)";
-        }
-        if (pTitle) {
-          pTitle.textContent = "STANDBY";
-          pTitle.style.color = "var(--text-muted)";
-        }
-        if (pNote) pNote.textContent = "Appliance Switched Off";
-      }
+      updateCookerStatus(isActive ? "COOKING" : "STANDBY", isActive ? "AC_DC_CONVERTER" : "BATTERY_BACKUP", "");
     }
 
     function handleTelemetryReport(doc, transportName) {
+      // 1. Current reading
       if (doc.target === "current") {
         const cur = parseFloat(doc.value) || 0;
         updateCurrentUI(cur);
+        const calcWatts = cur * 230.0 * 0.98;
+        updatePowerMetrics(calcWatts, null);
         return;
       }
 
+      // 2. Active Power (Watts)
+      if (doc.target === "power_w") {
+        const w = parseFloat(doc.value) || 0;
+        updatePowerMetrics(w, null);
+        return;
+      }
+
+      // 3. Accumulated Energy (Wh)
+      if (doc.target === "energy_wh") {
+        const wh = parseFloat(doc.value) || 0;
+        updatePowerMetrics(null, wh);
+        return;
+      }
+
+      // 4. Rice Cooker State
+      if (doc.target === "cook_state") {
+        updateCookerStatus(doc.value, null, doc.error);
+        return;
+      }
+
+      // 5. Power Source
+      if (doc.target === "power_source") {
+        updateCookerStatus(null, doc.value, doc.error);
+        return;
+      }
+
+      // 6. Mains Status
       if (doc.target === "mains_status") {
         const mainsActive = parseFloat(doc.value) > 0.5;
-        const cur = parseFloat(document.getElementById("currentReadout")?.textContent) || 0;
-        const isSwitchedOn = document.getElementById("cookerToggle")?.checked;
-        if (isSwitchedOn && !mainsActive) {
-          showMainsOffWarning("Power is OFF! No current detected (Battery backup active)");
-        } else if (isSwitchedOn && mainsActive) {
-          hideMainsOffWarning();
-          setMainsPowerState(true);
-        }
+        updateCookerStatus(null, mainsActive ? "AC_DC_CONVERTER" : "BATTERY_BACKUP", doc.error);
         return;
       }
 
+      // 7. Full Status / Power report
       if (doc.target === "power" || doc.target === "enable") {
         const state = doc.value;
         const errorMsg = doc.error || "";
-        const isFinished = doc.finished || false;
         const isMainsActive = doc.mains !== false;
         const curVal = doc.current !== undefined ? parseFloat(doc.current) : null;
+        const pWatts = doc.power_w !== undefined ? parseFloat(doc.power_w) : (curVal !== null ? curVal * 230.0 * 0.98 : null);
+        const eWh    = doc.energy_wh !== undefined ? parseFloat(doc.energy_wh) : null;
+        const cState = doc.cook_state || (errorMsg ? (isMainsActive ? "FAULT" : "MAINS_LOST") : (state ? "COOKING" : "STANDBY"));
+        const pSource = doc.power_source || (isMainsActive ? "AC_DC_CONVERTER" : "BATTERY_BACKUP");
 
-        if (curVal !== null) {
-          updateCurrentUI(curVal);
-        }
+        if (curVal !== null) updateCurrentUI(curVal);
+        if (pWatts !== null) updatePowerMetrics(pWatts, eWh);
+        updateCookerStatus(cState, pSource, errorMsg);
 
         clearTimeout(toggleTimeoutId);
         const toggle = document.getElementById("cookerToggle");
         toggle.disabled = false;
 
-        const statusLbl = document.getElementById("cookerToggleStatus");
-
-        if (errorMsg || (state === false && isMainsActive === false) || doc.mains === false) {
-          showMainsOffWarning(errorMsg || "Power is OFF! No current detected (Battery backup active)");
-        } else if (isFinished) {
+        if (cState === "MAINS_LOST" || doc.mains === false) {
           toggle.checked = false;
-          hideMainsOffWarning();
-          setMainsPowerState(false);
-          statusLbl.textContent = "COOKER POWER: OFF (Finished)";
-          statusLbl.style.color = "var(--success-color)";
-          showAlert("Cooking is finished!", "success");
-          alert("Cooking is finished!");
+        } else if (cState === "COOKED") {
+          toggle.checked = true; // Still connected/warm
+        } else if (cState === "FAULT") {
+          toggle.checked = false;
         } else {
-          toggle.checked = state;
-          if (state) {
-            hideMainsOffWarning();
-            setMainsPowerState(true);
-            statusLbl.textContent = `COOKER POWER: ON (${transportName})`;
-            statusLbl.style.color = "var(--success-color)";
-          } else {
-            hideMainsOffWarning();
-            setMainsPowerState(false);
-            statusLbl.textContent = `COOKER POWER: OFF (${transportName})`;
-            statusLbl.style.color = "var(--text-muted)";
-          }
+          toggle.checked = !!state;
         }
       }
     }
@@ -1036,30 +1131,32 @@
       clearTerminal();
       logTerminal(`Selected device ${selectedDevice.device_name} (${selectedDevice.device_id})`);
       
-      // Query the power state from server's cached value
+      // Query cached states
       const powerRes = selectedDevice.resources.find(r => r.id === "power" || r.id === "enable");
       const powerState = powerRes ? powerRes.last_value : false;
 
-      // Query current reading
       const currentRes = selectedDevice.resources.find(r => r.id === "current");
       const currentVal = currentRes && currentRes.last_value !== null ? parseFloat(currentRes.last_value) : 0.0;
       updateCurrentUI(currentVal);
+
+      const powerWRes = selectedDevice.resources.find(r => r.id === "power_w");
+      const powerWVal = powerWRes && powerWRes.last_value !== null ? parseFloat(powerWRes.last_value) : currentVal * 230.0 * 0.98;
+
+      const energyRes = selectedDevice.resources.find(r => r.id === "energy_wh");
+      const energyVal = energyRes && energyRes.last_value !== null ? parseFloat(energyRes.last_value) : 0.0;
+      updatePowerMetrics(powerWVal, energyVal);
+
+      const cStateRes = selectedDevice.resources.find(r => r.id === "cook_state");
+      const cStateVal = cStateRes ? cStateRes.last_value : (powerState ? (currentVal >= 0.4 ? "COOKING" : "FAULT") : "STANDBY");
+
+      const pSourceRes = selectedDevice.resources.find(r => r.id === "power_source");
+      const pSourceVal = pSourceRes ? pSourceRes.last_value : "AC_DC_CONVERTER";
+
+      updateCookerStatus(cStateVal, pSourceVal, "");
       
-      // Update toggle safely without triggering command
       const toggle = document.getElementById("cookerToggle");
-      toggle.checked = !!powerState;
+      toggle.checked = !!powerState && cStateVal !== "FAULT" && cStateVal !== "MAINS_LOST";
       toggle.disabled = !selectedDevice.is_online;
-      
-      const statusLbl = document.getElementById("cookerToggleStatus");
-      if (powerState && currentVal < 0.05) {
-        showMainsOffWarning("Power is OFF! No current detected (Battery backup active)");
-      } else {
-        hideMainsOffWarning();
-        setMainsPowerState(!!powerState && currentVal >= 0.05);
-        statusLbl.textContent = selectedDevice.is_online 
-          ? (powerState ? "COOKER POWER: ON (Cached)" : "COOKER POWER: OFF (Cached)") 
-          : "Switch Disabled (Device Offline)";
-      }
     }
 
     function backToDashboard() {
